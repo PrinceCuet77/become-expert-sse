@@ -1,0 +1,6 @@
+- combined package of the application with it's dependencies, makes a single unit called container
+- Share the container means share the application with it's dependencies
+- Replicating the entire local development in a standarize way accross the large team
+- Container properties
+  - Portable
+  - Light weight
