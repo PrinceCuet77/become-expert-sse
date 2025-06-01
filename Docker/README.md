@@ -154,6 +154,16 @@ docker run -d <image_name>
 
 - For `mysql`, I can use environment variables to run the command
 
+![run -d -e](photo/terminal-photo/p11.png)
+
+- I can give the custom name of any container
+
+```cmd
+docker run --name <container_name> -d <image_name>
+```
+
+![run --name](photo/terminal-photo/p12.png)
+
 ## Docker Image Layers
 
 - When I create a new container, a new writable layer (called container layer) is added on top of underlying layers
@@ -161,9 +171,13 @@ docker run -d <image_name>
 
 ![Docker Image Layers](photo/docker-image-layers.png)
 
+- If a layer is already present in the local machine, then it use that instead of downloading again
+
+![pull mysql](photo/terminal-photo/p13.png)
+
 ## Port Binding
 
-- A
+- 37:12
 
 ![Port Binding](photo/port-binding.png)
 
