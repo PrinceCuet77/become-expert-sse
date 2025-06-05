@@ -4,6 +4,12 @@
     - [Commands](#commands)
   - [Docker Image Layers](#docker-image-layers)
   - [Port Binding](#port-binding)
+  - [Troubleshoot Commands](#troubleshoot-commands)
+  - [Docker vs VM](#docker-vs-vm)
+  - [Docker Network](#docker-network)
+    - [Setup `mongo` \& `mongo-express`](#setup-mongo--mongo-express)
+  - [Docker Compose](#docker-compose)
+  - [Dockerizing Our App](#dockerizing-our-app)
   - [All Docker Commands](#all-docker-commands)
     - [Images](#images)
     - [Container](#container-1)
@@ -177,9 +183,204 @@ docker run --name <container_name> -d <image_name>
 
 ## Port Binding
 
-- 37:12
+- Bind the docker port with the local machine's port
 
 ![Port Binding](photo/port-binding.png)
+
+- Without binding the port showing `3306/tcp` for both
+
+![Port not-binding](photo/terminal-photo/p14.png)
+
+- Port Binding in container
+
+```cmd
+docker run -p<host_port>:<container_port> <image_name>
+```
+
+![Port Binding](photo/terminal-photo/p15.png)
+
+## Troubleshoot Commands
+
+- Fetch logs of a container which can identify the root cause of any problem if exist
+
+```cmd
+docker logs <container_name>
+docker logs <container_id> // Alternative
+```
+
+![logs](photo/terminal-photo/p16.png)
+
+- Using `exec`, execute any additional command
+- Open shell inside running container
+
+```cmd
+docker exec -it <container_name> /bin/bash
+docker exec -it <container_name> sh
+```
+
+![exec](photo/terminal-photo/p17.png)
+
+## Docker vs VM
+
+- Docker
+  - Docker uses host os kernel
+  - And virtualize the application layer
+  - As only virtualize application layer, so it's light weight
+  - Initially, docker is only running in the linux based OS
+  - But with the help of docker desktop, docker is able to run in mac & windows
+  - As docker desktop has linux based VM inside on it
+- VM
+  - Virtualize host os kernel & application layer both
+  - So, compatible with all types of OS (mac, linux, windows)
+
+![Docker vs VM](photo/docker-vs-vm.png)
+
+## Docker Network
+
+- I have a backend and frontend
+- For database, I will use mongodb which is in the docker container
+- Use `mongo` & `mongo-express` both docker images
+- `mongo` is the database docker image but `mongo-express` is the docker image for web view for that `mongo` database
+
+![Server Container Connection](photo/server-container-connection.png)
+
+- I need to wrap that both docker containers within a docker network
+- As, interact both docker container with each other without any ports & limitatins
+- So, I need docker network
+- Create a docker network & setup 2 containers on it to interact
+
+![Docker Network](photo/docker-network.png)
+
+- List all networks
+
+```cmd
+docker network ls
+```
+
+- Create a network
+
+```cmd
+docker network create <network_name>
+```
+
+![Create Docker Network](photo/create-docker-network.png)
+
+- Remove a network
+
+```cmd
+docker network rm <network_name>
+```
+
+![Network rm](photo/network-remove.png)
+
+- Remove all unused networks
+
+```cmd
+docker network prune
+```
+
+### Setup `mongo` & `mongo-express`
+
+- `-d` for detach mode (not taking the whole terminal for `mongo`)
+- `-p27017:27017` for port binding
+- `--name mongo` rename as mongo
+- `--network mongo-network` setup inside the `mongo-network`
+- `-e ROOT_USERNAME=admin` setup the user name
+- `-e ROOT_PASSWORD=qwerty` setup the password
+
+```cmd
+docker run -d \
+-p27017:27017 \
+--name mongo \
+--network mongo-network \
+-e MONGO_INITDB_ROOT_USERNAME=admin \
+-e MONGO_INITDB_ROOT_PASSWORD=qwerty \
+mongo
+```
+
+![mongo](photo/terminal-photo/p18.png)
+
+```cmd
+docker run -d \
+-p8081:8081 \
+--name mongo-express \
+--network mongo-network \
+-e ME_CONFIG_MONGODB_ADMINUSERNAME=admin \
+-e ME_CONFIG_MONGODB_ADMINPASSWORD=qwerty \
+-e ME_CONFIG_MONGODB_URL="mongodb://admin:qwerty@mongo:27017" \
+mongo-express
+```
+
+![mogno-express](photo/terminal-photo/p19.png)
+
+- For mongodb url breakdown
+
+```cmd
+-e ME_CONFIG_MONGODB_URL="mongodb://<username>:<password>@<container-name>:<port>
+```
+
+- Open the terminal and visit `localhost:8081` & give the username as `admin` and password as `pass`
+
+![Application](photo/testapp-mongo.png)
+
+## Docker Compose
+
+- Instead of running long docker container command in the terminal, execute all the commands by including in a single file
+- So, docker compose is a tool for defining and running multi-container applications
+- Advantages:
+  - More flexible to edit the commands
+  - Structured and standarize format
+- `services` defines the containers
+- Docker command vs Docker compose
+
+![Docker Compose](photo/docker-compose.png)
+
+- So, equivalent docker compose file is
+
+```yaml
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongo:27017/
+```
+
+- Don't mention any network, as by default docker compose will create a network and containers are start in that network
+- Docker container create & start command
+
+```cmd
+docker compose -f filename.yaml up -d
+```
+
+![Compose Up](photo/compose.png)
+
+- Docker container remove permanently command
+
+```cmd
+docker compose -f filename.yaml down
+```
+
+![Compose Down](photo/compose-down.png)
+
+## Dockerizing Our App
+
+- Convert our app in the docker image using `Dockerfile`
+
+![Dockerize](photo/dockerize.png)
 
 ## All Docker Commands
 
