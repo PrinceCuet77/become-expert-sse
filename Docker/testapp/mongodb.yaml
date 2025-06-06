@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongo:
     image: mongo:latest
@@ -8,6 +6,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: qwerty
+    volumes:
+      - /home/prince/Desktop/data:/data/db
 
   mongo-express:
     image: mongo-express:latest
@@ -17,3 +17,8 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
       ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongo:27017/
+
+  testapp:
+    image: princecuet77/testapp:latest
+    ports:
+      - 5000:5000

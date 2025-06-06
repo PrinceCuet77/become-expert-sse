@@ -10,6 +10,8 @@
     - [Setup `mongo` \& `mongo-express`](#setup-mongo--mongo-express)
   - [Docker Compose](#docker-compose)
   - [Dockerizing Our App](#dockerizing-our-app)
+  - [Publishing Images](#publishing-images)
+  - [Docker Volumes](#docker-volumes)
   - [All Docker Commands](#all-docker-commands)
     - [Images](#images)
     - [Container](#container-1)
@@ -258,6 +260,7 @@ docker network ls
 ```
 
 - Create a network
+- By default, the driver is `bridge` type
 
 ```cmd
 docker network create <network_name>
@@ -281,12 +284,12 @@ docker network prune
 
 ### Setup `mongo` & `mongo-express`
 
-- `-d` for detach mode (not taking the whole terminal for `mongo`)
-- `-p27017:27017` for port binding
-- `--name mongo` rename as mongo
-- `--network mongo-network` setup inside the `mongo-network`
-- `-e ROOT_USERNAME=admin` setup the user name
-- `-e ROOT_PASSWORD=qwerty` setup the password
+- `-d` - for detach mode (not taking the whole terminal for `mongo`)
+- `-p27017:27017` - for port binding
+- `--name mongo` - rename as mongo
+- `--network mongo-network` - setup inside the `mongo-network`
+- `-e ROOT_USERNAME=admin` - setup the user name
+- `-e ROOT_PASSWORD=qwerty` - setup the password
 
 ```cmd
 docker run -d \
@@ -322,6 +325,14 @@ mongo-express
 - Open the terminal and visit `localhost:8081` & give the username as `admin` and password as `pass`
 
 ![Application](photo/testapp-mongo.png)
+
+- Use `bridge` network driver to comunicate with other `bridge` network driver containers in the same host machine
+- `host` network driver use same network as our host machine
+- So, there is not IP Address
+- So, container will create with no IP Address and use the same network which is already used in host machine
+- For `null` network driver is isolated from host machine itself & other container as well
+
+![network ls](photo/terminal-photo/p29.png)
 
 ## Docker Compose
 
@@ -381,6 +392,229 @@ docker compose -f filename.yaml down
 - Convert our app in the docker image using `Dockerfile`
 
 ![Dockerize](photo/dockerize.png)
+
+- Important `Dockerfile` instructions
+- `FROM` - define the base image
+- `WORKDIR` - working directory or the path in the image where files will be copied & commands will be executed
+- `COPY` - copy files from host to the image folder
+- `RUN` - run the instructions, can use multiple times
+- `CMD` - run the application, can use only time time in the `Dockerfile`
+- `EXPOSE` - expose the port
+- `ENV` - setup the environment variables
+
+![Dockerfile](photo/dockerfile.png)
+
+- The `Dockerfile` is:
+
+```Dockerfile
+FROM node
+
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=qwerty
+
+RUN mkdir -p testapp
+
+COPY . /testapp
+
+CMD [ "node", "/testapp/server.js" ]
+```
+
+- Build the docker image from `Dockerfile`
+
+```cmd
+docker build -t <new_image_name>:<version> .
+```
+
+![build](photo/terminal-photo/p20.png)
+
+- Run the already created docker image
+
+```cmd
+docker run <new_image_name>:<version>
+docker run -it <new_image_name>:<version> // interactive mode
+```
+
+![run](photo/terminal-photo/p21.png)
+
+## Publishing Images
+
+- Create an account to docker hub
+- Create a repository
+- Build my custom image in the terminal
+- Login that account through the terminal
+
+```cmd
+docker logout
+docker login -u <username>
+```
+
+![Docker Hub Login](photo/docker-hub-login.png)
+
+- Push my custom made image to the docker hub
+
+```cmd
+docker push <new_image_name>
+```
+
+![push](photo/terminal-photo/p22.png)
+
+- In the docker hub
+
+![Docker Hub Image Repo](photo/docker-hub-my-image.png)
+
+- Now, customize the `yaml` file to pull my newly pushed image from the docker hub
+
+```yaml
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongo:27017/
+
+  testapp:
+    image: princecuet77/testapp:latest
+    ports:
+      - 5000:5000
+```
+
+- Run the docker compose file in the terminal
+
+![Docker Compose](photo/terminal-photo/p23.png)
+
+## Docker Volumes
+
+- Volumes are persistent data stores for containers
+- The volume is reserved in the host system and managed by docker
+
+![Docker Volume](photo/volume.png)
+
+- Mount Named volume with running container
+
+```cmd
+docker run -v <volume_name>:<mount_path> <image_name>
+```
+
+![volume](photo/terminal-photo/p24.png)
+
+- So, even I stop or delete the container, this 2 files will be present
+- Volume mount using `.yaml` file
+
+```yaml
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: qwerty
+    volumes:
+      - /home/prince/Desktop/data:/data/db # Here
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: qwerty
+      ME_CONFIG_MONGODB_URL: mongodb://admin:qwerty@mongo:27017/
+
+  testapp:
+    image: princecuet77/testapp:latest
+    ports:
+      - 5000:5000
+```
+
+- List all Volumes
+
+```cmd
+docker volume ls
+```
+
+![volume ls](photo/terminal-photo/p25.png)
+
+- Create new Named volume
+- Named volume is isolated or not attached to any running container
+
+```cmd
+docker volume create <volume_name>
+```
+
+![volume create](photo/terminal-photo/p26.png)
+
+- By default for windows, docker will create the volume in:
+
+```txt
+C:\ProgramData\docker\volumes
+```
+
+- By default for mac/linux, docker will create the volume in:
+
+```txt
+/var/lib/docker/volumes
+```
+
+- Delete a Named volume
+
+```cmd
+docker volume rm <volume_name>
+```
+
+![volume rm](photo/terminal-photo/p27.png)
+
+- Mount Named volume with running container
+- Most popular to use
+- If my given `volume_name` is exist then use otherwise will create a new one in default mac/linux/windows path
+- Created & managed by docker itself
+- Similar three commands
+
+```cmd
+docker run -v <volume_name>:<mount_path/container_dir>
+docker run --volume <volume_name>:<mount_path/container_dir>
+docker run --mount type=volume,src=<volume_name>,dest=<mount_path>
+```
+
+- Mount with anonymous volumes
+- For any temporary storage use
+- Created & managed by docker itself as well
+- Similar three commands
+
+```cmd
+docker run -v <mount_path/container_dir>
+docker run --volume <mount_path/container_dir>
+docker run --volume <host_path>:<container_path>
+```
+
+- To create a Bind Mount
+- Similar three commands
+
+```cmd
+docker run -v <host_dir>:<mount_path/container_dir>
+docker run --volume <host_dir>:<mount_path/container_dir>
+docker run --mount type=bind,src=<host_path>,dest=<container_path>
+```
+
+- To remove unused docker volumes
+- Mainly target anonymous docker volumes
+
+```cmd
+docker volume prune
+```
+
+![volume prune](photo/terminal-photo/p28.png)
 
 ## All Docker Commands
 
@@ -557,31 +791,31 @@ docker volume rm <volume_name>
 - Mount Named volume with running container
 
 ```cmd
-docker run - -volume <volume_name>:<mount_path>
+docker run --volume <volume_name>:<mount_path>
 ```
 
-- Or using - -mount
+- Or using `--mount`
 
 ```cmd
-docker run - -mount type=volume,src=<volume_name>,dest=<mount_path>
+docker run --mount type=volume,src=<volume_name>,dest=<mount_path>
 ```
 
 - Mount Anonymous volume with running container
 
 ```cmd
-docker run - -volume <mount_path>
+docker run --volume <mount_path>
 ```
 
 - To create a Bind Mount
 
 ```cmd
-docker run - -volume <host_path>:<container_path>
+docker run --volume <host_path>:<container_path>
 ```
 
-- Or using - -mount
+- Or using `--mount`
 
 ```cmd
-docker run - -mount type=bind,src=<host_path>,dest=<container_path>
+docker run --mount type=bind,src=<host_path>,dest=<container_path>
 ```
 
 - Remove unused local volumes
