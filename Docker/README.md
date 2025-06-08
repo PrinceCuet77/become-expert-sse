@@ -12,6 +12,9 @@
   - [Dockerizing Our App](#dockerizing-our-app)
   - [Publishing Images](#publishing-images)
   - [Docker Volumes](#docker-volumes)
+  - [Container Orchestration](#container-orchestration)
+    - [Docker Swarm](#docker-swarm)
+    - [Kubernetes](#kubernetes)
   - [All Docker Commands](#all-docker-commands)
     - [Images](#images)
     - [Container](#container-1)
@@ -19,6 +22,7 @@
     - [Docker Hub](#docker-hub)
     - [Volumes](#volumes)
     - [Network](#network)
+  - [Notes](#notes)
 
 # Docker
 
@@ -134,11 +138,55 @@ docker rmi <image_name>
 docker rmi <image_id> // Alternative
 ```
 
+- Stop and Remove All Containers
+
+```cmd
+docker rm -f $(docker ps -aq)
+```
+
+- Breakdown:
+  - `docker ps -aq`: Lists all container IDs (running or stopped).
+  - `docker rm -f`: Force removes all listed containers.
+- Remove All Images
+
+```cmd
+docker rmi -f $(docker images -q)
+```
+
+- Breakdown:
+
+  - `docker images -q`: Lists all image IDs.
+  - `docker rmi -f`: Force removes all listed images.
+
 - Delete a container
 
 ```cmd
 docker rm <container_name>
 docker rm <container_id> // Alternative
+```
+
+- Delete all the stopped containers
+
+```cmd
+docker container prune
+```
+
+- Additional details for a specific container in a JSON format
+
+```cmd
+docker inspect <container-name>
+```
+
+- See the history of an image
+
+```cmd
+docker history <image-name>
+```
+
+- Image build command
+
+```cmd
+docker build .
 ```
 
 - Before removing an image, must remove the container
@@ -616,6 +664,30 @@ docker volume prune
 
 ![volume prune](photo/terminal-photo/p28.png)
 
+## Container Orchestration
+
+- Docker orchestration is essential when you're managing multiple containers across one or more hosts in a reliable, scalable, and automated way.
+- Here’s why orchestration matters:
+  - Automated Container Management
+  - Load Balancing and Service Discovery
+  - Scaling Applications
+  - Multi-Container Apps
+  - Multi-Host Deployment
+  - Security and Configuration
+- A container orchestration allows to deploy hundreds or thousands of instances of my application with a single command
+- There are multiple container orchestration solutios
+  - Docker Swarm
+  - Kubernetes from Google
+  - Mesos from Apache
+
+### Docker Swarm
+
+- Docker swarm combine multiple docker machines together into a single cluster 
+
+### Kubernetes
+
+- A
+
 ## All Docker Commands
 
 ### Images
@@ -643,6 +715,26 @@ docker image prune
 ```cmd
 docker build -t <image_name>:<version> . // version is optional
 docker build -t <image_name>:<version> . -no-cache // build without cache
+```
+
+- Build Args and Custom Dockerfile
+
+```cmd
+docker build -t <image-name>:<version> -f Dockerfile.prod --build-arg ENV=production .
+```
+
+- Removes dangling images only — these are images not tagged and not referenced by any container.
+- Images created during intermediate builds that aren’t used anymore.
+
+```cmd
+docker image prune
+```
+
+- Removes all unused images, not just dangling ones.
+- This includes any image not used by at least one container, even if it is tagged.
+
+```cmd
+docker image prune -a
 ```
 
 ### Container
@@ -675,7 +767,7 @@ docker run -d <image_name>
 - Run container with custom name
 
 ```cmd
-docker run - -name <container_name> <image_name>
+docker run --name <container_name> <image_name>
 ```
 
 - Port Binding in container
@@ -838,6 +930,13 @@ docker network ls
 docker network create <network_name>
 ```
 
+- By default, created `bridge` network, if I specify
+
+```cmd
+docker run --network=host <container-name>
+docker run --network=none <container-name>
+```
+
 - Remove a network
 
 ```cmd
@@ -849,3 +948,8 @@ docker network rm <network_name>
 ```cmd
 docker network prune
 ```
+
+## Notes
+
+- [kobekloud - Docker(Beginner)](https://notes.kodekloud.com/docs/Docker-Training-Course-for-the-Absolute-Beginner/Introduction/Introduction)
+- [Example Voting App for Docker Compose](https://github.com/dockersamples/example-voting-app)
