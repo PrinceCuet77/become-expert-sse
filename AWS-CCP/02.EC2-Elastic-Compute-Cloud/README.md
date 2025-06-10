@@ -17,6 +17,18 @@
   - [SSH Summary Table](#ssh-summary-table)
   - [How to SSH into your EC2 Instance Linux / MacOS](#how-to-ssh-into-your-ec2-instance-linux--macos)
   - [EC2 Instance Roles](#ec2-instance-roles)
+  - [EC2 Instances Purchasing Options](#ec2-instances-purchasing-options)
+  - [EC2 On Demand](#ec2-on-demand)
+  - [EC2 Reserved Instances](#ec2-reserved-instances)
+  - [EC2 Savings Plans](#ec2-savings-plans)
+  - [EC2 Spot Instances](#ec2-spot-instances)
+  - [EC2 Dedicated Hosts](#ec2-dedicated-hosts)
+  - [EC2 Dedicated Instances](#ec2-dedicated-instances)
+  - [EC2 Capacity Reservations](#ec2-capacity-reservations)
+  - [Which purchasing option is right for me?](#which-purchasing-option-is-right-for-me)
+  - [AWS charges for IPv4 addresses](#aws-charges-for-ipv4-addresses)
+  - [Shared Responsibility Model for EC2](#shared-responsibility-model-for-ec2)
+  - [EC2 Section – Summary](#ec2-section--summary)
 
 # EC2 - Elastic Compute Cloud
 
@@ -24,6 +36,9 @@
 
 - EC2 Instance Types
 - Classic Ports to know
+- EC2 Instance Purchasing Options
+  - Which type of instance is the right one based on the workload
+- Shared Responsibility Model for EC2
 
 ## Amazon EC2
 
@@ -195,8 +210,85 @@ ssh -i <pem-file.pem> ec2-user@<instance-public-ip-address>
 
 ## EC2 Instance Roles
 
-- A
+- Providing the AWS IAM configuration in the EC2 instance terminal is very bad idea
+- As my personal details on this EC2 instance is accessed by anyone (working in a team) else connect to my EC2 instance & retrieved the value of these credentials in my instance
 
 ![EC2 Instance Roles](photo/ec2-instance-roles.png)
+
+- Instead, I have to use **IAM Role**
+- Create a IAM Role in IAM section with **IAMReadOnlyAccess** policy
+- In the instance, set that IAM Role from `Actions > Security > Modify IAM Role` & set role
+- So, providing AWS Credentials using IAM Role
+- Now I can access `list-users` without prividing any credentials
+
+![EC2 Instance Roles Setup](photo/ec2-instance-role-setup.png)
+
+## EC2 Instances Purchasing Options
+
+- A
+
+## EC2 On Demand
+
+- A
+
+## EC2 Reserved Instances
+
+- A
+
+## EC2 Savings Plans
+
+- A
+
+## EC2 Spot Instances
+
+- A
+
+## EC2 Dedicated Hosts
+
+- A
+
+## EC2 Dedicated Instances
+
+- A
+
+## EC2 Capacity Reservations
+
+- A
+
+## Which purchasing option is right for me?
+
+- **On demand:** coming and staying in resort whenever we like, we pay the full price
+- **Reserved:** like planning ahead and if we plan to stay for a long time, we may get a good discount.
+- **Savings Plans:** pay a certain amount per hour for certain period and stay in any room type (e.g., King, Suite, Sea View, …)
+- **Spot instances:** the hotel allows people to bid for the empty rooms and the highest bidder keeps the rooms. You can get kicked out at any time
+- **Dedicated Hosts:** We book an entire building of the resort
+- **Capacity Reservations:** you book a room for a period with full price even you don’t stay in it
+
+## AWS charges for IPv4 addresses
+
+- Starting February 1st 2024, there’s a charge for all Public IPv4 created in your account
+- **`$0.005` per hour of Public IPv4 (`~$3.6` per month)**
+- For new accounts in AWS, you have a free tier for the EC2 service: 750 hours of Public IPv4 per month for the first 12 months
+- For all other services there is no free tier
+- You can test IPv6 by going to [IPv6 test link](https://test-ipv6.com/)
+- How to troubleshoot charges?
+  - Go into your AWS Bill
+  - Look into the AWS Public IP Insights service
+  - [Nice article here](https://repost.aws/articles/ARknH_OR0cTvqoTfJrVGaB8A/why-am-i-seeing-charges-for-public-ipv4-addresses-when-i-am-under-the-aws-free-tier)
+
+![AWS charges for IPv4 addresses](photo/aws-ipv4-charges.png)
+
+## Shared Responsibility Model for EC2
+
+![Shared Responsibility Model for EC2](photo/shared-responsibility-model.png)
+
+## EC2 Section – Summary
+
+- **EC2 Instance:** AMI (OS) + Instance Size (CPU + RAM) + Storage + security groups + EC2 User Data
+- **Security Groups:** Firewall attached to the EC2 instance
+- **EC2 User Data:** Script launched at the first start of an instance
+- **SSH:** start a terminal into our EC2 Instances (port 22)
+- **EC2 Instance Role:** link to IAM roles
+- **Purchasing Options:** On-Demand, Spot, Reserved (Standard + Convertible), Dedicated Host, Dedicated Instance
 
 --- The End ---
