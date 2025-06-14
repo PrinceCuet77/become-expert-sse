@@ -1,11 +1,11 @@
 - [ELB \& ASG - Elastic Load Balancing \& Auto Scaling Groups](#elb--asg---elastic-load-balancing--auto-scaling-groups)
   - [Exam KeyNotes](#exam-keynotes)
 - [Scalability \& High Availability](#scalability--high-availability)
-  - [Vertical Scalability](#vertical-scalability)
-  - [Horizontal Scalability](#horizontal-scalability)
-  - [High Availability](#high-availability)
-  - [High Availability \& Scalability For EC2](#high-availability--scalability-for-ec2)
-  - [Scalability vs Elasticity (vs Agility)](#scalability-vs-elasticity-vs-agility)
+    - [Vertical Scalability](#vertical-scalability)
+    - [Horizontal Scalability](#horizontal-scalability)
+    - [High Availability](#high-availability)
+    - [High Availability \& Scalability For EC2](#high-availability--scalability-for-ec2)
+    - [Scalability vs Elasticity (vs Agility)](#scalability-vs-elasticity-vs-agility)
   - [Load Balancer](#load-balancer)
     - [Why use a load balancer?](#why-use-a-load-balancer)
     - [Why use an Elastic Load Balancer?](#why-use-an-elastic-load-balancer)
@@ -134,7 +134,7 @@
   - Ensure we have a minimum and a maximum number of machines running
   - Automatically register new instances to a load balancer
   - Replace unhealthy instances
-    • Cost Savings: only run at an optimal capacity (principle of the cloud)
+    - Cost Savings: only run at an optimal capacity (principle of the cloud)
 
 ![Auto Scaling Group](photo/auto-scaling-group.png)
 
@@ -167,8 +167,8 @@
   - Supports health checks
   - 4 types: Classic (old), Application (HTTP – L7), Network (TCP – L4), Gateway (L3)
 - Auto Scaling Groups (ASG)
-- Implement Elasticity for your application, across multiple AZ
-- Scale EC2 instances based on the demand on your system, replace unhealthy
-- Integrated with the ELB
+  - Implement Elasticity for your application, across multiple AZ
+  - Scale EC2 instances based on the demand on your system, replace unhealthy
+  - Integrated with the ELB
 
 --- The End ---
